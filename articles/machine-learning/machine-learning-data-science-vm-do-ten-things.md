@@ -44,9 +44,7 @@ Instructions for provisioning a Data Science Virtual Machine on the Azure Portal
 
 You can use languages like R and Python to do your data analytics right on the DSVM. 
 
-For R, you can use an IDE called "Revolution R Enterprise 8.0" that can be found on the start menu or the desktop. Microsoft has provided additional libraries on top of the Open source/CRAN-R to enable scalable analytics and the ability to analyze data larger than the memory size allowed by doing parallel chunked analysis. Here is a screen shot of  using the R IDE. 
-
-![R IDE](./media/machine-learning-data-science-vm-do-ten-things/RevoIDE.png)
+For R, you can use an IDE called "Revolution R Enterprise 8.0" that can be found on the start menu or the desktop. Microsoft has provided additional libraries on top of the Open source/CRAN-R to enable scalable analytics and the ability to analyze data larger than the memory size allowed by doing parallel chunked analysis. You can also install an R IDE of your choice like [RStudio](https://www.rstudio.com/products/rstudio-desktop/). 
 
 For Python, you can use an IDE like Visual Studio Community Edition which has the Python Tools for Visual Studio (PTVS) extension pre-installed. By default, only a basic Python 2.7 (without any analytics library like SciKit, Pandas) is configured on PTVS. In order to enable Anaconda Python 2.7 and 3.5, you need to do the following:
 
@@ -60,7 +58,7 @@ Here is what the custom environment setup looks like in Visual Studio.
 
 See [PTVS documentation](https://github.com/Microsoft/PTVS/wiki/Selecting-and-Installing-Python-Interpreters#hey-i-already-have-an-interpreter-on-my-machine-but-ptvs-doesnt-seem-to-know-about-it) for more details on how to create the Python Environments. 
   
-Now you are set up to open a project and begin working!
+Now you are set up to create a new Python project by navigating to File->New->Project->Python and selecting the type of Python application you are building. You can set the Python environment for the current project to the desired version (Anaconda 2.7 or 3.5) by right clicking the ```Python environment``` and then selecting ```Add/Remove Python Environments``` and selecting the desired environment to associate with the project. You can find more information about working with PTVS on the product [documentation](https://github.com/Microsoft/PTVS/wiki) page. 
 
 ## 2. Using a Jupyter Notebook to explore and model your data with Python or R
 
@@ -85,7 +83,7 @@ If you have not yet signed up for AzureML, you can obtain a free workspace or a 
 
 ### Build and Operationalizing models built using Python  
 
-Upload the notebook entitled "IrisClassifierPyMLWebService" to your Jupyter. Here is a simple model built in Python using SciKit-learn as found in the notebook. 
+Here is a snippet of code developed in a Python Jupyter Notebook that builds a simple model using SciKit-learn library. 
   
 	#IRIS classification
 	from sklearn import datasets
@@ -96,7 +94,7 @@ Upload the notebook entitled "IrisClassifierPyMLWebService" to your Jupyter. Her
 	clf.fit(X, y) 
  
 The method used to deploy your python models to AzureML is to wrap the prediction of a model into a function 
-and decorate it with attributes provided by the AzureML library denoting your AzureML workspace ID, API Key, the input parameters and return parameters.  
+and decorate it with attributes provided by the pre-installed AzureML python library denoting your AzureML workspace ID, API Key, the input parameters and return parameters.  
 
 	from azureml import services
 	@services.publish(workspaceid, auth_token)
@@ -130,8 +128,8 @@ Here is a code snippet that can be used to publish a model as a web service in A
 
 #### Setup
 
-1.  Install the AzureML package by typing ```install.packages("AzureML")``` in Revolution R Enterprise 8.0 IDE. 
-2.  Download RTools from [here](https://cran.r-project.org/bin/windows/Rtools/). You need the zip utility in thr path to operationalize your R package into AzureML. 
+1.  Install the AzureML R package by typing ```install.packages("AzureML")``` in Revolution R Enterprise 8.0 IDE or your R IDE. 
+2.  Download RTools from [here](https://cran.r-project.org/bin/windows/Rtools/). You need the zip utility in the path (and named zip.exe) to operationalize your R package into AzureML. 
 3.  Create a settings.json file under a directory called ```.azureml``` under your home directory and enter the parameters from your Azure ML workspace:
 
 settings.json File structure:
@@ -178,6 +176,7 @@ The following code is used to consume the model published as an AzureML web serv
 	# OK, try this out, and compare with raw data
 	ans = consume(ep, sleepstudy)$ans
 
+More information about the AzureML R library can be found [here](https://cran.r-project.org/web/packages/AzureML/AzureML.pdf). 
 
 ## 4. Administer your Azure resources using Azure Portal or Powershell
 
@@ -218,7 +217,7 @@ You can use Azure Powershell to create a  Azure File Service share. Here is the 
 Now that you have created an Azure file share, you can mount it in any virtual machine in Azure. It is highly recommended that the VM is in same Azure data center as the storage account to avoid latency and data transfer charges. Here is the commands to mount the drive on the DSVM that you can run on Azure Powershell.
 
 
-	# Get storage key of the storage account that has the Azure file share from Azurer portal. Store it securely on the VM to avoid prompted in next command.
+	# Get storage key of the storage account that has the Azure file share from Azure portal. Store it securely on the VM to avoid prompted in next command.
 	cmdkey /add:<<mydatadisk>>.file.core.windows.net /user:<<mydatadisk>> /pass:<storage key>
 	
 	# Mount the Azure file share as Z: drive on the VM. You can chose another drive letter if you wish
@@ -258,10 +257,10 @@ Azure blob is a reliable, economical cloud storage for data big and small. Let u
 ![Create_Azure_Blob](./media/machine-learning-data-science-vm-do-ten-things/Create_Azure_Blob.PNG)
 
 
-- **Make sure the pre-installed AzCopy tool found at ```C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\azcopy.exe``` is added to your environment variable. For more info on AzCopy please refer to [AzCopy documentation](../storage/storage-use-azcopy.md)
+- Confirm that the pre-installed command line AzCopy tool is found at ```C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\azcopy.exe```. You can add the directory containing the azcopy.exe to your PATH environment variable to avoid typing the full command path when running this tool. For more info on AzCopy tool please refer to [AzCopy documentation](../storage/storage-use-azcopy.md)
 
 
-- **Start the Azure Storage Explorer from [here](https://azurestorageexplorer.codeplex.com/).**
+- Start the Azure Storage Explorer from a icon on the VM desktop. You can also find it in the directory ```C:\Program Files (x86)\Neudesic\Azure Storage Explorer 6```.  
 
 ![AzureStorageExplorer_v4](./media/machine-learning-data-science-vm-do-ten-things/AzureStorageExplorer_v4.png)
 
@@ -307,7 +306,7 @@ In Azure Machine Learning Studio you can use a **Reader module** to read data fr
 
 **Read data from Azure Blob: Python ODBC**
 
-In the IPython Notebook **NYC Data wrangling using IPython Notebook and Azure Blob Storage**, you can use **pyodbc** package to read data directly from blob. 
+In a Jupyter Notebook or Python program, you can use **BlobService** library to read data directly from blob. 
 
 First, import required packages:
 
@@ -376,6 +375,7 @@ You can use **Azure Data Lake Explorer** to upload data from the local files in 
 
 ![Azure_Data_Lake_UploadData](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Lake_UploadData.PNG)
 
+You can also build a data pipeline to productionize your data movement to or from Azure Data Lake using the [Azure Data Factory(ADF)](https://azure.microsoft.com/services/data-factory/). We refer you to this [article](https://azure.microsoft.com/blog/creating-big-data-pipelines-using-azure-data-lake-and-azure-data-factory/) to guide you through the steps to build the data pipelines. 
 
 **Read data from Azure Blob to Data Lake: U-SQL**
 
@@ -468,12 +468,12 @@ Azure HDInsight is a managed Apache Hadoop, Spark, HBase, and Storm service on t
 
 ![](./media/machine-learning-data-science-vm-do-ten-things/Create_HDI_dashboard_v3.PNG)
 
-  - Create an Azure ML workspace. Your Machine Learning Experiments will be stored in this ML workspace.
+  - Create an Azure ML workspace. Your Machine Learning Experiments will be stored in this ML workspace. Select the highlighted options in Portal as shown in the screenshot below. 
 
 ![](./media/machine-learning-data-science-vm-do-ten-things/Create_ML_Space.PNG)
 
 
-  - Then select the Remote Desktop:
+  - Then enter the parameters for your Azure ML workspace
 
 ![](./media/machine-learning-data-science-vm-do-ten-things/Create_ML_Space_step2_v2.PNG)
 
@@ -575,7 +575,7 @@ Azure HDInsight is a managed Apache Hadoop, Spark, HBase, and Storm service on t
 	- AzCopy: upload unzipped CSV's from local folder to HDI cluster
 	- Log into the head node of Hadoop cluster and prepare for exploratory data analysis
 
-After the data is loaded to HDI cluster, you can check your data in Azure Storage Explore. And you have a database nyctaxidb created in HDI cluster.
+After the data is loaded to HDI cluster, you can check your data in Azure Storage Explorer. And you have a database nyctaxidb created in HDI cluster.
 
 ![](./media/machine-learning-data-science-vm-do-ten-things/Upload_Data_to_HDI_cluster_Azure_Explorer.PNG)
 
@@ -865,8 +865,7 @@ You now have the data in your Power BI data model. Your Power BI desktop should 
 
 You can start building reports and visualizations using the data model. You can follow the steps in this [Power BI article](../documentdb/documentdb-powerbi-visualize.md#build-the-reports) to build a report. The end result will be a report that looks like the following.
 
-
-TBD: Volcano Map Report image URL missing - not correct.
+![Power BI Desktop Report View - Power BI connector](./media/documentdb-powerbi-visualize/power_bi_connector_pbireportview2.png)
 
 ## 9. Dynamically scale your DSVM to meet your project needs
 
