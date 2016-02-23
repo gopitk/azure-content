@@ -18,7 +18,7 @@
 
 # Ten things you can do on the Data science Virtual Machine 
 
-The Microsoft Data Science Virtual Machine (DSVM) is a powerful data science development environment that enables you to perform various data exploration and modeling tasks. The environment comes already built and bundled with several popular data analytics tools that make it easy to get started quickly with your analysis. The DSVM works closely with many Azure services and is able to read and process data that is already stored on Azure in Azure SQL Data Warehouse, Azure Data Lake, Azure Storage, or DocumentDB. It can also leverage analytics tools like Azure Machine Learning and Azure Data Factory.
+The Microsoft Data Science Virtual Machine (DSVM) is a powerful data science development environment that enables you to perform various data exploration and modeling tasks. The environment comes already built and bundled with several popular data analytics tools that make it easy to get started quickly with your analysis for On-premises, Cloud or hybrid deployment. The DSVM works closely with many Azure services and is able to read and process data that is already stored on Azure in Azure SQL Data Warehouse, Azure Data Lake, Azure Storage, or DocumentDB. It can also leverage analytics tools like Azure Machine Learning and Azure Data Factory.
 
 
 In this article we walk you through how to use your DSVM to perform various data science tasks and interact with other Azure services. Here is some  of the things you can do on the DSVM:
@@ -34,8 +34,10 @@ In this article we walk you through how to use your DSVM to perform various data
 9. Dynamically scale your DSVM to meet your project needs 
 10. Install additional tools on your virtual machine
 
+NOTE: Additional usage charges will apply for many of the additional data storage and analytics services listed in this article. Please refer to the [Azure Pricing page](https://azure.microsoft.com/pricing/) for details. 
+
 **Prerequisites**
-You will need an Azure subscription. You can sign-up for a free trial [here](https://azure.microsoft.com/free/)
+You will need an Azure subscription. You can sign-up for a free trial [here](https://azure.microsoft.com/free/). 
 Instructions for provisioning a Data Science Virtual Machine on the Azure Portal are available at [Creating a virtual machine](https://ms.portal.azure.com/#create/microsoft-ads.standard-data-science-vmstandard-data-science-vm).
 
 ## 1. Explore data and develop models using Microsoft R Server or Python
@@ -68,8 +70,6 @@ To launch the Jupyter notebook click on the start menu icon / desktop icon title
 [DSVM documentation page](machine-learning-data-science-provision-vm.md/#how-to-create-a-strong-password-on-the-jupyter-notebook-server) 
 to create a strong password to access the Jupyter notebook. 
 
-TBD: SCREEN SHOT
-
 Once you are on the notebook, you will see a directory that contains a few example notebooks that are pre-packaged into the DSVM. You can click on the notebook and see the code. You can execute each cell by pressing **SHIFT-ENTER**. 
 You can run the entire notebook by clicking on **Cell** -> **Run**.
 
@@ -81,13 +81,12 @@ You can create a new notebook by clicking on the Jupyter Icon (left top corner) 
 Once you have built and validated your model the next step is usually to deploy it into production. 
 This allows your client applications to invoke the model predictions on a real time or a batch basis. Azure Machine Learning provides a mechanism to operationalize the model built in either R or Python. 
 When you operationalize your model in Azure Machine Learning, a web service is exposed that allows clients to make REST calls that pass in input parameters and receive predictions from the model as outputs. 
-If you have not yet signed up for AzureML, you can obtain a free 8-hour guest access or a free workspace by visiting the [AzureML Studio](https://studio.azureml.net/) home page and clicking on "Get Started".  
+If you have not yet signed up for AzureML, you can obtain a free workspace or a standard workspace by visiting the [AzureML Studio](https://studio.azureml.net/) home page and clicking on "Get Started".   
 
 ### Build and Operationalizing models built using Python  
 
 Upload the notebook entitled "IrisClassifierPyMLWebService" to your Jupyter. Here is a simple model built in Python using SciKit-learn as found in the notebook. 
   
-	python
 	#IRIS classification
 	from sklearn import datasets
 	from sklearn import svm
@@ -99,7 +98,6 @@ Upload the notebook entitled "IrisClassifierPyMLWebService" to your Jupyter. Her
 The method used to deploy your python models to AzureML is to wrap the prediction of a model into a function 
 and decorate it with attributes provided by the AzureML library denoting your AzureML workspace ID, API Key, the input parameters and return parameters.  
 
-	python
 	from azureml import services
 	@services.publish(workspaceid, auth_token)
 	@services.types(sep_l = float, sep_w = float, pet_l=float, pet_w=float)
@@ -111,7 +109,6 @@ and decorate it with attributes provided by the AzureML library denoting your Az
 A client can now make calls to the web service. There are convenience wrappers that construct the REST API requests. Here is a sample code to consume the web service. 
 
 
- 	python
 	# Consume through web service URL and keys
 	from azureml import services
 	@services.service(url, api_key)
@@ -131,9 +128,14 @@ You can deploy R models built on the Data Science Virtual Machine or elsewhere o
 You then write a wrapper for the model's predict function. Then you call the ```publishWebService``` call in the AzureML library passing in the function wrapper.  
 Here is a code snippet that can be used to publish a model as a web service in Azure ML.
 
-#### Settings.json File:
+#### Setup
 
-	json
+1.  Install the AzureML package by typing ```install.packages("AzureML")``` in Revolution R Enterprise 8.0 IDE. 
+2.  Download RTools from [here](https://cran.r-project.org/bin/windows/Rtools/). You need the zip utility in thr path to operationalize your R package into AzureML. 
+3.  Create a settings.json file under a directory called ```.azureml``` under your home directory and enter the parameters from your Azure ML workspace:
+
+settings.json File structure:
+
 	{"workspace":{
 	"id"                  : "ENTER YOUR AZUREML WORKSPACE ID",
 	"authorization_token" : "ENTER YOUR AZUREML AUTH TOKEN"
@@ -142,7 +144,6 @@ Here is a code snippet that can be used to publish a model as a web service in A
 
 #### Build a model in R and publishing it in Azure ML
 
-	R
 	library(AzureML)
 	ws <- workspace(config="~/.azureml/settings.json")
 
@@ -165,7 +166,6 @@ To consume the model from a client application, we use the AzureML library to lo
 The following code is used to consume the model published as an AzureML web service. 
 
 
-	R
 	library(AzureML)
 	library(lme4)
 	ws <- workspace(config="~/.azureml/settings.json")
@@ -215,7 +215,7 @@ You can use Azure Powershell to create a  Azure File Service share. Here is the 
 	Get-AzureStorageFile -Share $s
 
 
-Now that you have creates an Azure file share, you can mount it in any virtual machine in Azure. It is highly recommended that the VM is in same Azure data center as the storage account to avoid latency and data transfer charges. Here is the commands to mount the drive on the DSVM that you can run on Azure Powershell.
+Now that you have created an Azure file share, you can mount it in any virtual machine in Azure. It is highly recommended that the VM is in same Azure data center as the storage account to avoid latency and data transfer charges. Here is the commands to mount the drive on the DSVM that you can run on Azure Powershell.
 
 
 	# Get storage key of the storage account that has the Azure file share from Azurer portal. Store it securely on the VM to avoid prompted in next command.
@@ -248,6 +248,8 @@ You can find more information on using Git to work with your Github repository b
 ## 7. Access various Azure data and analytics services
 
 ### Azure Blob
+
+Azure blob is a reliable, economical cloud storage for data big and small. Let us look at how you can move data to Azure Blob and access data stored in a Azure Blob. 
 
 **Prerequisite**
 
@@ -332,12 +334,29 @@ Then plug in your Azure Blob account credentials and read data from Blob:
 	LOCALDIRECTORY = os.getcwd()
 	LOCALFILE =  os.path.join(LOCALDIRECTORY, localfilename)
 
+	#download from blob
+	t1 = time.time()
+	blob_service = BlobService(account_name=STORAGEACCOUNTNAME,account_key=STORAGEACCOUNTKEY)
+	blob_service.get_blob_to_path(CONTAINERNAME,BLOBNAME,LOCALFILE)
+	t2 = time.time()
+	print(("It takes %s seconds to download "+BLOBNAME) % (t2 - t1))
+
+	##unzipping downloaded files if needed
+	#with zipfile.ZipFile(ZIPPEDLOCALFILE, "r") as z:
+	#    z.extractall(LOCALDIRECTORY)
+
+	df1 = pd.read_csv(LOCALFILE, header=0)
+	df1.columns = ['medallion','hack_license','vendor_id','rate_code','store_and_fwd_flag','pickup_datetime','dropoff_datetime','passenger_count','trip_time_in_secs','trip_distance','pickup_longitude','pickup_latitude','dropoff_longitude','dropoff_latitude']
+	print 'the size of the data is: %d rows and  %d columns' % df1.shape
+	
 You can see the data is read in as a data frame:
 
 ![IPNB_data_readin](./media/machine-learning-data-science-vm-do-ten-things/IPNB_data_readin.PNG)
 
 
 ### Azure Data Lake
+
+Azure Data Lake Storage is a hyper-scale repository for big data analytics workloads and compatible with Hadoop Distributed File System (HDFS), It works with both the Hadoop ecosystem and the Azure Data Lake Analytics. We show how you can move data into the Azure Data Lake Store and run analytics using Azure Data Lake Analytics. 
 
 **Prerequisite**
 
@@ -351,278 +370,11 @@ You can see the data is read in as a data frame:
 ![Azure_Data_Lake_PlugIn_v2](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Lake_PlugIn_v2.PNG)
 
 
-- Install **Data Management Gateway** following this [document](../data-factory/data-factory-move-data-between-onprem-and-cloud.md).
-
-![Azure_Data_Gateway_v2](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Gateway_v2.PNG)
-
-
-- Share the local folder where your data is stored to everyone so that Azure Data Gateway can access it.
-
-![Share_Folder](./media/machine-learning-data-science-vm-do-ten-things/Share_Folder.PNG)
-
-
 **Move data from VM to Data Lake: Azure Data Lake Explorer**
 
 You can use **Azure Data Lake Explorer** to upload data from the local files in your Virtual Machine to Data Lake storage.
 
 ![Azure_Data_Lake_UploadData](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Lake_UploadData.PNG)
-
-
-**Move data from VM to Data Lake: Azure Data Factory**
-
-Azure Data Factory is service to create, schedule, and manage data pipelines. We can use Azure Data Factory to move data between different storage. Create [Azure Data Factory](https://azure.microsoft.com/services/data-factory/) in [Azure Portal](http://portal.azure.com):
-
-![Azure_Data_Factory_Create](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Factory_Create.PNG)
-
-Once it is created, you can build pipelines to move data between different storage. In **Author and deploy** you can specify datasets to transfer and setup your pipelines. 
-
-![Azure_Data_Factory_Overview_v4](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Factory_Overview_v4.PNG)
-
-
-The major steps to move data from Virtual Machine to Azure Data Lake are as follows. Details about moving data using Azure Data Factory can be found [here](../data-factory/data-factory-data-movement-activities.md). The JSON files below will be in your Data Science VM.
-
-1. **Create Linked Services**
-	- Click **New Data Store** then choose **Azure Data Lake Storage**, plug in your credentials and parameters in the JSON file.
-	- Click **New Data Store** then choose **File System**, plug in your credentials and parameters in the JSON file.
-2. **Create Datasets**
-	- Click **New dataset** then choose **Azure Data Lake**, plug in **Linked Service** name and **folder path** in the JSON file.
-	- Click **New dataset** then choose **On-premises file**, plug in **dataset schema**, **Linked Service** name, **file name**, and **folder path** in the JSON file.
-3. **Create Pipelines**
-	- Click **New pipeline**, specify the **input and output datasets**, **activity type**, and etc. in the JSON file. 
-4. **Create Data GateWays**
-	- Register your gateway key and make sure the registration is **Registered** and status is **Started**.
-	- Click **New data gateway**, fill in **data gateway name **, the **Configure** part will setup automatically if your data gateway is installed properly in the previous steps.
-
-![Azure_Data_Gateway_part2_v2](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Gateway_part2_v2.png)
-
-![Azure_Data_Factory_Template](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Factory_Template.PNG)
-
-![Azure_Data_Factory_Template_Json_v2](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Factory_Template_Json_v2.PNG)
-
-The JSON files used in the above steps are:
-
-**Linked services: AzureDataLakeStoreLinkedService**
-
-	{
-	    "name": "AzureDataLakeStoreLinkedService",
-	    "properties": {
-	        "description": "",
-	        "hubName": "weigadf_hub",
-	        "type": "AzureDataLakeStore",
-	        "typeProperties": {
-	            "dataLakeStoreUri": "https://cdspkona.azuredatalakestore.net/webhdfs/v1",
-	            "authorization": "**********",
-	            "sessionId": "**********",
-	            "subscriptionId": "49bb74df-a9b8-4275-9439-198b33ae0f5f",
-	            "resourceGroupName": "weiguodsvn"
-	        }
-	    }
-	}
-
-
-**Linked services: OnPremisesFileServerLinkedService**
-
-	{
-	    "name": "OnPremisesFileServerLinkedService",
-	    "properties": {
-	        "description": "dsvm",
-	        "hubName": "weigadf_hub",
-	        "type": "OnPremisesFileServer",
-	        "typeProperties": {
-	            "host": "localhost",
-	            "gatewayName": "weiggateway",
-	            "userId": "weiguo",
-	            "password": "**********"
-	        }
-	    }
-	}
-
-
-**Datasets: OnPremisesFile**
-
-	{
-	    "name": "OnPremisesFile",
-	    "properties": {
-	        "published": false,
-	        "type": "FileShare",
-	        "linkedServiceName": "OnPremisesFileServerLinkedService",
-	        "typeProperties": {
-	            "folderPath": "\\\\dsvmjanc1ssd\\share"
-	        },
-	        "availability": {
-	            "frequency": "Hour",
-	            "interval": 1
-	        },
-	        "external": true,
-	        "policy": {}
-	    }
-	}
-
-
-**Datasets: weiglakenew1**
-
-	{
-	    "name": "Datalakenew",
-	    "properties": {
-	        "structure": [
-	            {
-	                "name": "medallion",
-	                "type": "String"
-	            },
-	            {
-	                "name": "hack_license",
-	                "type": "String"
-	            },
-	            {
-	                "name": "vendor_id",
-	                "type": "String"
-	            },
-	            {
-	                "name": "rate_code",
-	                "type": "String"
-	            },
-	            {
-	                "name": "store_and_fwd_flag",
-	                "type": "String"
-	            },
-	            {
-	                "name": "pickup_datetime",
-	                "type": "Datetime"
-	            },
-	            {
-	                "name": "dropoff_datetime",
-	                "type": "Datetime"
-	            },
-	            {
-	                "name": "passenger_count",
-	                "type": "Double"
-	            },
-	            {
-	                "name": "trip_time_in_secs",
-	                "type": "Decimal"
-	            },
-	            {
-	                "name": "trip_distance",
-	                "type": "Decimal"
-	            },
-	            {
-	                "name": "pickup_longitude",
-	                "type": "String"
-	            },
-	            {
-	                "name": "pickup_latitude",
-	                "type": "String"
-	            },
-	            {
-	                "name": "dropoff_longitude",
-	                "type": "String"
-	            },
-	            {
-	                "name": "dropoff_latitude",
-	                "type": "String"
-	            }
-	        ],
-	        "published": false,
-	        "type": "AzureDataLakeStore",
-	        "linkedServiceName": "AzureDataLakeStoreLinkedService",
-	        "typeProperties": {
-	            "fileName": "UploadedFromVM_success.CSV",
-	            "folderPath": "cdsp-data/nyctaxi_weig/"
-	        },
-	        "availability": {
-	            "frequency": "Hour",
-	            "interval": 1
-	        }
-	    }
-	}
-
-
-**Datasets: vmtodatalake_tripdata**
-
-	{
-	    "name": "vmtodatalake_tripdata",
-	    "properties": {
-	        "description": "vmtodatalake",
-	        "activities": [
-	            {
-	                "type": "Copy",
-	                "typeProperties": {
-	                    "source": {
-	                        "type": "FileSystemSource"
-	                    },
-	                    "sink": {
-	                        "type": "AzureDataLakeStoreSink",
-	                        "writeBatchSize": 0,
-	                        "writeBatchTimeout": "00:00:00"
-	                    }
-	                },
-	                "inputs": [
-	                    {
-	                        "name": "OnPremisesFile"
-	                    }
-	                ],
-	                "outputs": [
-	                    {
-	                        "name": "weiglakenew1"
-	                    }
-	                ],
-	                "policy": {
-	                    "timeout": "01:00:00",
-	                    "concurrency": 1
-	                },
-	                "scheduler": {
-	                    "frequency": "Hour",
-	                    "interval": 1
-	                },
-	                "name": "AzureBlobtoDataLake",
-	                "description": "Copy Activity"
-	            }
-	        ],
-	        "start": "2016-02-01T00:00:00Z",
-	        "end": "2016-02-01T01:00:00Z",
-	        "isPaused": false,
-	        "hubName": "weigadf_hub",
-	        "pipelineMode": "Scheduled"
-	    }
-	}
-
-
-**Data Gateways: weiggateway**
-
-	{
-	    "name": "VMtoLakegateway",
-	    "properties": {
-	        "description": "",
-	        "hostServiceUri": "https://dsvmjanc1ssd:8050/HostServiceRemote.svc/",
-	        "dataFactoryName": "weigadf",
-	        "status": "Online",
-	        "versionStatus": "UpToDate",
-	        "version": "1.9.5865.2",
-	        "registerTime": "2016-01-28T20:21:51.2375545Z",
-	        "lastConnectTime": "2016-02-12T00:06:55.3445063Z"
-	    }
-	}
-
-
-
-After the pipeline is built, you can look at the pipeline in the **Diagram** in the Azure Data Factory dashboard.
-
-
-![](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Factory_Find_Diagram.PNG)
-
-Click the **Diagram** box to see the pipeline:
-
-![](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Factory_PipeLine_Diagram.PNG)
-
-You can monitor the data pipeline in **Contents**->**Datasets**->**Monitoring** 
-
-![](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Factory_Monitor_v2.PNG)
-
-
-You may also check if the data is moved to Azure Data Lake using **Azure Data Lake Explorer** in **Visual Studio**.
-
-
-![](./media/machine-learning-data-science-vm-do-ten-things/Azure_Data_Factory_Monitor_inVS.PNG)
 
 
 **Read data from Azure Blob to Data Lake: U-SQL**
@@ -698,6 +450,8 @@ To see the file information:
 
 ### HDInsight Hadoop Clusters
 
+Azure HDInsight is a managed Apache Hadoop, Spark, HBase, and Storm service on the cloud. You can work easily with Azure HDInsight clusters from the data science virtual machine. 
+
 **Prerequisite**
 
 - Create your Azure Blob storage account from [Azure Portal](http://portal.azure.com). This storage account is used to store data for HDInsight clusters.
@@ -706,24 +460,24 @@ To see the file information:
 
 - Customize Azure HDInsight Hadoop Clusters from [Azure Portal](machine-learning-data-science-customize-hadoop-cluster.md)
 
-	- You must link the storage account created with your HDInsight cluster when it is created. This storage account is used for accessing data that can be processed within the cluster.
+  - You must link the storage account created with your HDInsight cluster when it is created. This storage account is used for accessing data that can be processed within the cluster.
 	
 ![](./media/machine-learning-data-science-vm-do-ten-things/Create_HDI_v4.PNG)
 
-	- You must enable **Remote Access** to the head node of the cluster after it is created. Remember the remote access credentials you specify here (different from those specified for the cluster at its creation): you will need them below.
+  - You must enable **Remote Access** to the head node of the cluster after it is created. Remember the remote access credentials you specify here (different from those specified for the cluster at its creation): you will need them below.
 
 ![](./media/machine-learning-data-science-vm-do-ten-things/Create_HDI_dashboard_v3.PNG)
 
-	- Create an Azure ML workspace. Your Machine Learning Experiments will be stored in this ML workspace.
+  - Create an Azure ML workspace. Your Machine Learning Experiments will be stored in this ML workspace.
 
 ![](./media/machine-learning-data-science-vm-do-ten-things/Create_ML_Space.PNG)
 
 
-	- Then select the Remote Desktop:
+  - Then select the Remote Desktop:
 
 ![](./media/machine-learning-data-science-vm-do-ten-things/Create_ML_Space_step2_v2.PNG)
 
-	- Upload data using IPython Notebook. First import required packages, plug in credentials, create a db in your storage account, then load data to HDI clusters. 
+  - Upload data using IPython Notebook. First import required packages, plug in credentials, create a db in your storage account, then load data to HDI clusters. 
 
 
 		#Import required Packages
@@ -815,7 +569,7 @@ To see the file information:
 		    cursor.execute(queryString)
 
 
-- Or you can follow this [walkthrough](machine-learning-data-science-process-hive-walkthrough.md) to upload NYC Taxi data to HDI cluster. Major steps include:
+- Alternately,  you can follow this [walkthrough](machine-learning-data-science-process-hive-walkthrough.md) to upload NYC Taxi data to HDI cluster. Major steps include:
 
 	- AzCopy: download zipped CSV's from public blob to your local folder
 	- AzCopy: upload unzipped CSV's from local folder to HDI cluster
@@ -1057,6 +811,10 @@ The scored dataset can then be viewed:
 
 
 ### Azure SQL Data Warehouse & databases
+
+Azure SQL Datawarehouse is an elastic data warehouse as a service with enterprise-class SQL Server experience. 
+
+You can provision your Azure SQL Datawarehouse by following the instructions provided in this [article](https://azure.microsoft.com/documentation/articles/sql-data-warehouse-get-started-provision/). Once you provision your Azure SQL Datawarehouse, you can use this [walkthrough](https://azure.microsoft.com/documentation/articles/machine-learning-data-science-process-sqldw-walkthrough/) to do data upload, exploration and modeling using data within the SQL Datawarehouse. 
 
 #### Azure DocumentDB
 
